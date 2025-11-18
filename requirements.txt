@@ -1,5 +1,5 @@
-numpy>=2.1
-matplotlib>=3.9
-ccdproc>=2.4
-astropy>=7.1
-specutils>=2.2
+numpy>=2
+matplotlib>=3
+ccdproc>=2
+astropy>=7
+specutils>=2
