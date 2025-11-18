@@ -1,5 +1,6 @@
-numpy>=2
-matplotlib>=3
-ccdproc>=2
-astropy>=7
-specutils>=2
+python>=3.12
+numpy
+matplotlib
+ccdproc
+astropy
+specutils
