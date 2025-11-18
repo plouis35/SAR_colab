@@ -1,0 +1,5 @@
+numpy>=2.1
+matplotlib>=3.9
+ccdproc>=2.4
+astropy>=7.1
+specutils>=2.2
