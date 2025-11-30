@@ -4,3 +4,4 @@ matplotlib
 astropy 
 ccdproc
 specutils 
+ipympl
