@@ -1,6 +1,6 @@
 pandas
 numpy
 matplotlib
-astropy > 7
+astropy 
 ccdproc
-specutils > 2
+specutils 
