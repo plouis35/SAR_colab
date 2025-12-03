@@ -43,12 +43,13 @@ class SpectroDashboard:
                 def format_coord(x,y):
                     return "(x, y) [adu]: ({:.0f}, {:.0f})".format(x,y)
                 self.ax_img.format_coord=format_coord
-
                 
                 self.fig_img.patch.set_facecolor('black')
                 self.ax_img.set_facecolor('black')
                 
-                self.im_obj = self.ax_img.imshow(np.zeros((10,10)), cmap='inferno', origin='lower')
+#                self.im_obj = self.ax_img.imshow(np.zeros((10,10)), cmap='inferno', origin='lower')
+                self.im_obj = self.ax_img.imshow(plt.imread('./logo_SAR.png'), cmap='inferno', origin='upper')
+                
                 self.cbar = plt.colorbar(self.im_obj, ax=self.ax_img)
                 plt.show()
                 
@@ -113,7 +114,7 @@ class SpectroDashboard:
 
         # choix colormap
         self.dropdown_cmap = widgets.Dropdown(
-            options=['viridis', 'plasma', 'inferno', 'gray', 'seismic', 'gist_heat', 'nipy_spectral'], 
+            options=['viridis', 'plasma', 'inferno', 'gray', 'seismic_r', 'gist_heat', 'nipy_spectral_r'], 
             value='inferno', 
             description='Colormap:', 
             layout=widgets.Layout(width='200px')
@@ -125,15 +126,15 @@ class SpectroDashboard:
             min=0, max=100, step=0.1, 
             description='Cuts (%):', 
             continuous_update=False, 
-            layout=widgets.Layout(width='1000px'),
-            #readout_format='d'
+            layout=widgets.Layout(width='700px'),
+            readout_format='.4f'
         )
         
         # Labels pour afficher les valeurs réelles ADU
-        #self.label_cuts_values = widgets.Label(value="ADU: [ - , - ]")
+        self.label_cuts_values = widgets.Label(value="ADU: [ - , - ]")
 
         # labels des stats
-        self.stats_html = widgets.HTML(value="Waiting for data...")
+        #self.stats_html = widgets.HTML(value="Waiting for data...")
 
         # boutons
         btn_layout = widgets.Layout(width='120px')
@@ -149,7 +150,7 @@ class SpectroDashboard:
         # ligne des controles de l'image
         row_image = widgets.HBox(
             #[self.label_name, self.dropdown_cmap, self.slider_cuts], #, self.label_cuts_values], 
-            [self.dropdown_cmap, self.slider_cuts], #, self.label_cuts_values], 
+            [self.dropdown_cmap, self.slider_cuts, self.label_cuts_values], #, self.label_cuts_values], 
             layout=widgets.Layout(align_items='center', justify_content='space-between', border='1px solid #555', padding='5px', width='100%')
         )
 
@@ -163,7 +164,7 @@ class SpectroDashboard:
         self.main_widget = widgets.VBox([
             row_image, 
             widgets.Box([self.out_image], layout=widgets.Layout(justify_content='center', width='100%')),
-            widgets.HBox([self.stats_html], layout=widgets.Layout(justify_content='center', margin='5px 0', border='1px solid #555', width='100%')), 
+            #widgets.HBox([self.stats_html], layout=widgets.Layout(justify_content='center', margin='5px 0', border='1px solid #555', width='100%')), 
             widgets.Box([self.out_spectrum], layout=widgets.Layout(justify_content='center', width='100%')),
             row_buttons
         ], layout=widgets.Layout(border='2px solid #333', padding='10px', width='98%'))
@@ -211,20 +212,13 @@ class SpectroDashboard:
         if hasattr(data, 'value'): data = data.value
         data = np.array(data, dtype=float)
         
-        # --- Optimisation Stockage ---
+        # on applique un binning si demandé (pour accelerer l'affichage)
         self.original_data = data 
         
         if binning > 1:
             self.display_data = data[::binning, ::binning]
         else:
             self.display_data = data
-            
-        #self.label_name.value = f"{name} (bin={binning})"
-        self.stats_html.value = f"{name} : (bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}mean={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, std={np.std(data):.1f}"
-
-        # On calcule min/max/mean sur un échantillon pour aller plus vite
-        #subset = data[::10, ::10]
-        #d_min, d_max = np.nanmin(subset), np.nanmax(subset)
 
         # Reset Slider à une position standard (5% - 99.5%)
         self.slider_cuts.unobserve(self._on_cuts_change, names='value')
@@ -241,14 +235,19 @@ class SpectroDashboard:
         # Application des cuts initiaux
         self._apply_cuts([5, 99.5])
         
+        # on affiche qq stats sur l'image chargée
+        print(f"{name} : bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}, avg={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, std={np.std(data):.1f}")
+
         self.fig_img.canvas.draw_idle()
 
+    
     def load_spectrum(self, x, y, label=None):
         """
         chargement d'un spectre
         x : np.array, données des abscisses
         y : np.array, données des ordonnées
         label : str, légende 
+        fwhm_neon : int, largeur en px d'une raie du neon (pour calculer R max théorique)
         """
         # si c'est un CCDData, ne pas prendre les unités définies par Astropy (inconnu de matplotlib)
         if hasattr(x, 'value'): x = x.value
@@ -264,9 +263,17 @@ class SpectroDashboard:
         # Légendes
         leg = self.ax_spec.legend(loc='upper right', fontsize='small', facecolor='black', edgecolor='white')
         for text in leg.get_texts(): text.set_color("white")
-            
-        self.fig_spec.canvas.draw_idle()
+
+        # on sauve le dernier spectre chargé (pour ne coloriser que ce dernier)
         self.last_x, self.last_y = x, y
+
+        # on affiche des stats sur le spectre chargé
+        dispersion = np.abs(x[1] - x[0])
+        
+        print(f"{label} : {dispersion=:.4f} Å/px")
+
+        self.fig_spec.canvas.draw_idle()
+
 
     def _apply_cuts(self, range_percent):
         """
@@ -285,7 +292,7 @@ class SpectroDashboard:
 
         # met à jour l'image
         self.im_obj.set_clim(vmin, vmax)
-        #self.label_cuts_values.value = f"ADU (min, max): {vmin:.0f}, {vmax:.0f}"
+        self.label_cuts_values.value = f"ADU (min, max): {vmin:.0f}, {vmax:.0f}"
         self.fig_img.canvas.draw_idle()
 
     def _on_cuts_change(self, change):
@@ -323,7 +330,8 @@ class SpectroDashboard:
             self.btn_color.icon = 'toggle-off'
             
         # raies
-        for m in self.lines_markers: m.remove()
+        for m in self.lines_markers: 
+            m.remove()
         self.lines_markers = []
         self.btn_lines.icon = 'toggle-off'
         
@@ -355,12 +363,12 @@ class SpectroDashboard:
             # creation de l'image 'arc en ciel' corresponsante aux lambda affichés
             im = self.ax_spec.imshow(
                 gradient, aspect='auto', extent=extent, 
-                cmap='nipy_spectral',  
-                vmin=3800, vmax=7500, # attention il faudra changer pour le NIR ...
+                cmap= 'nipy_spectral',  
+                vmin=3800, vmax=7500, # attention il faudra adapter pour le NIR ...
                 origin='lower', alpha=0.6, zorder=0
             )
 
-            # création des polygones qui vont remplir sous le spectre
+            # création des polygones qui ne vont remplir que sous le spectre
             y_min = self.ax_spec.get_ylim()[0]
             verts = list(zip(x, y)) + [(x[-1], y_min), (x[0], y_min)]
             poly = Polygon(verts, transform=self.ax_spec.transData)
@@ -368,6 +376,7 @@ class SpectroDashboard:
 
             # remplissage 
             self.fill_obj = im
+            
             self.btn_color.icon = 'toggle-on'
             
         self.fig_spec.canvas.draw_idle()
