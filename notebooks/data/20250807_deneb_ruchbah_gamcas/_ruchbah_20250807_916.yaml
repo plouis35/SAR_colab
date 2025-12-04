@@ -1,0 +1,55 @@
+# DADOS 200 tr/mm - ATIK 420m - SW400/FD5 
+# -------------------------------------------------------- 
+Inst: SW400/FD5 + Dados200 + 25mic + ATIK420M
+noise: 2.2
+gain: 1.2
+file_extension: 1
+check_mode: 1
+
+Observer: plouis
+Longitude: -1.63
+Latitude: 48.12
+Altitude: 55
+Site: RENNES
+
+working_path: /Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas
+batch_name: 20250807_Rennes
+
+# Etalonnage 
+# -------------------------------------------------------- 
+calib_mode: 0
+extract_mode: 1
+xlimit: [10, 1600]
+poly_order: 2
+#wavelength: [4259.36, 5400.56, 5852.49, 6402.25] 
+#wavelength: [4671.22, 4916.51, 5852.49, 6382.99] 
+#line_pos: [218, 879, 1136, 1444] 
+#wavelength: [4671.22, 5028.28, 5852.49, 6266.49, 7031.41] 
+#line_pos: [193, 401, 871, 1105, 1533] 
+#line_pos: [193, 401, 871, 1105, 1533] 
+#wavelength: [4259.36, 5400.56, 5852.49, 6402.25]
+#line_pos: [18, 679, 936, 1244]
+
+wavelength: [5400.56, 5852.49, 6402.25]
+line_pos: [679, 936, 1244]
+
+norm_wave: [6550, 6600]
+#norm_wave: [6000, 6200] 
+instrumental_response: rep_20250807
+
+# Géométrie 
+# -------------------------------------------------------- 
+#posy: 605 
+#tilt: 0.13 
+slant: 0
+smile_radius: 0
+bin_size: 25
+#sky_mode: 0 
+sky: [120, 60, 60, 120]
+#sky_remove: 0 
+
+# Post-process 
+# -------------------------------------------------------- 
+kernel_size: 0
+sigma_gauss: 0
+#crop_wave: [3900, 6600]

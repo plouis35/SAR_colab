@@ -1,16 +1,16 @@
 # Liste de raies principales (Basse Résolution)
 # Wavelength, Name
 ### HR
-6523.8, atm
-6536.7, atm
-6543.9, atm
-6548.6, atm
-6552.6, atm
-6572.1, atm
-6574.8, atm
-6580.8, atm
-6586.5, atm
-6594.4, atm
+#6523.8, atm
+#6536.7, atm
+#6543.9, atm
+#6548.6, atm
+#6552.6, atm
+#6572.1, atm
+#6574.8, atm
+#6580.8, atm
+#6586.5, atm
+#6594.4, atm
 6562.8, H
 4861.3, H
 4340.4, H
