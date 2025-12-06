@@ -1,82 +1,51 @@
 # Liste de raies principales (Basse Résolution)
 # Wavelength, Name
-### HR
-#6523.8, atm
-#6536.7, atm
-#6543.9, atm
-#6548.6, atm
-#6552.6, atm
-#6572.1, atm
-#6574.8, atm
-#6580.8, atm
-#6586.5, atm
-#6594.4, atm
-6562.8, H
-4861.3, H
-4340.4, H
-4101.7, H
-3970.0, H 
-3889.0, H 
-3835.3, H
-3797.5, H
-5270.4, Fe 
-5168.9, Fe 
-4957.6, Fe 
-4668.1, Fe 
-4383.6, Fe 
-4307.9, Fe 
-4481.1, MgII
-5183.6, Mg 
-5172.7, Mg 
-5167.3, Mg 
-5852.4, NeI
-5881.8, NeI
-5890.0, NaI
-5895.9, NaI
-6158.2, O1 
-6277.7, O2 
-6869.0, O2 
-7186.0, O2 
-7605.0, O2 
-8987.7, O2 
-4959.0, OIII
-500.69, OIII
-651.65, H2O
-694.07, H2O
-695.64, H2O
-698.90, H2O
-3968.5, CaII
-3933.7, CaII
-7065.2, He
-6678.2, He
-5875.6, He
-5015.7, He
-4471.4, He
-6347.1, SiII
-6371.4, SiII
-4877.0, Tb 
-5424.0, Tb 
-6116.0, Eu 
-3361.1, TiII
 
-### BR
-
-
-
-### WR
-
-
-
-### NIR
-
-
-### Paschen
-
-
-### nebuleuses
-#5006.8, [O III]
-#4958.9, [O III]
-#6716.0, [S II]
-#6731.0, [S II]
+3934,Ca II K
+3968,Ca II H + H-eps
+4026,He I
+4078,Sr II
+4102,H-delta
+4200,He II
+4227,Ca I
+4300,G-Band (CH)
+4340,H-gamma
+4471,He I
+4481,Mg II
+4542,He II
+4686,He II
+4765,TiO
+4861,H-beta
+4959,[O III]
+5007,[O III]
+5175,Mg I (b)
+5411,He II
+5876,He I (D3)
+5893,Na I (D)
+5940,H2O (Tell)
+6158,TiO
+6280,O2 (Tell a)
+6385,CaH
+6515,H2O (Tell)
+6548,[N II]
+6563,H-alpha
+6582,[N II]
+6678,He I
+6708,Li I
+6716,[S II]
+6730,[S II]
+6870,O2 (Tell B)
+7050,TiO
+7240,H2O (Tell)
+7600,O2 (Tell A)
+7774,O I
+8228,H2O (Tell)
+8498,Ca II (1)
+8542,Ca II (2)
+8598,H-Paschen
+8662,Ca II (3)
+8750,H-Paschen
+8863,H-Paschen
+9300,H2O (Tell)
 
 
