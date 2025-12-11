@@ -239,9 +239,6 @@ class SpectroDashboard:
         # on affiche qq stats sur l'image chargée
         print(f"{name} : bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}, avg={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, std={np.std(data):.1f}")
 
-        # appique le alpha
-        self.im_obj.set_alpha = alpha
-
         self.fig_img.canvas.draw_idle()
     
     def load_spectrum(self, x, y, label=None):
