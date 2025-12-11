@@ -40,13 +40,15 @@
 7240,H2O (Tell)
 7600,O2 (Tell A)
 7774,O I
+8502,H-Paschen (Pa14)
 8228,H2O (Tell)
+8467,H-Paschen (Pa15)
 8498,Ca II (1)
 8542,Ca II (2)
-8598,H-Paschen
+8598,H-Paschen (Pa12)
 8662,Ca II (3)
-8750,H-Paschen
+8665,H-Paschen (Pa11)
+8750,H-Paschen (Pa10)
 8863,H-Paschen
 9300,H2O (Tell)
-
 
