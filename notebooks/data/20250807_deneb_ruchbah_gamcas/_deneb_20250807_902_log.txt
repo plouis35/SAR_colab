@@ -1,0 +1,51 @@
+----------------------------------------------------
+_deneb_20250807_902
+----------------------------------------------------
+Computed mean Y = 610
+Computed tilt angle = 0.169
+Predefined slant angle = 0.000
+Calibration coefficients:
+8.285539357282456e-05, 1.6170673594182952, 4261.828238537003
+O-C: [-0. -0. -0.]
+Root Mean Square Error = 0.0000 A
+FWHM = 8.36 pixels
+Dispersion = 1.7772 A/pixel
+Resolution power = 382 @ 5678 A
+----------------------------------------------------
+SIMPLE  = 'T       '                                                            
+BITPIX  =                  -32                                                  
+NAXIS1  =                 3235                                                  
+CRVAL1  =   4262.7032614248665                                                  
+CDELT1  =   0.8750228878634516                                                  
+BZERO   =                    0                                                  
+BSCALE  =                    1                                                  
+EXPTIME =                 25.0                                                  
+OBJNAME = 'deneb   '                                                            
+OBJECT  = 'deneb   '                                                            
+EXPTIME2= '5 x 5 s '                                                            
+BSS_ITRP=                  382                                                  
+SPE_RPOW=                  382                                                  
+BSS_VHEL=                    0                                                  
+DATE-OBS= '2025-08-07T21:38:34.508'                                             
+GEO_LONG=                -1.63                                                  
+GEO_LAT =                48.12                                                  
+GEO_ELEV=                   55                                                  
+BSS_SITE= 'RENNES  '                                                            
+BSS_INST= 'SW400/FD5 + Dados200 + 25mic + ATIK420M'                             
+OBSERVER= 'plouis  '                                                            
+BSS_COSM= 'Removed '                                                            
+BSS_TELL= 'None    '                                                            
+BSS_NORM= 'None    '                                                            
+CRPIX1  =                    1                                                  
+CTYPE1  = 'Wavelength'                                                          
+CUNIT1  = 'Angstrom'                                                            
+VERSION = 'specINTI 2.5.7'                                                      
+JD-OBS  = '2460895.40179'                                                       
+----------------------------------------------------
+Output files name:
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_deneb_20250807_902.fit
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_deneb_20250807_902.png
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_deneb_20250807_902_2D.fit
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_deneb_20250807_902.yaml
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_deneb_20250807_902_log.txt
+----------------------------------------------------

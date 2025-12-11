@@ -1,0 +1,7 @@
+numpy>2
+matplotlib
+ipympl
+spandas
+astropy<7.0 
+ccdproc
+specutils>2 

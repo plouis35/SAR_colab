@@ -1,0 +1,51 @@
+----------------------------------------------------
+_gamcas_20250807_912
+----------------------------------------------------
+Computed mean Y = 609
+Computed tilt angle = 0.072
+Computed slant angle = -0.437
+Calibration coefficients:
+8.279774696927266e-05, 1.6171288720094183, 4261.819420270946
+O-C: [-0. -0. -0.]
+Root Mean Square Error = 0.0000 A
+FWHM = 8.36 pixels
+Dispersion = 1.7771 A/pixel
+Resolution power = 382 @ 5678 A
+----------------------------------------------------
+SIMPLE  = 'T       '                                                            
+BITPIX  =                  -32                                                  
+NAXIS1  =                 3238                                                  
+CRVAL1  =    4261.819420270946                                                  
+CDELT1  =   0.8750070178657552                                                  
+BZERO   =                    0                                                  
+BSCALE  =                    1                                                  
+EXPTIME =                 25.0                                                  
+OBJNAME = 'gamcas  '                                                            
+OBJECT  = 'gamcas  '                                                            
+EXPTIME2= '5 x 5 s '                                                            
+BSS_ITRP=                  382                                                  
+SPE_RPOW=                  382                                                  
+BSS_VHEL=                    0                                                  
+DATE-OBS= '2025-08-07T21:52:41.472'                                             
+GEO_LONG=                -1.63                                                  
+GEO_LAT =                48.12                                                  
+GEO_ELEV=                   55                                                  
+BSS_SITE= 'RENNES  '                                                            
+BSS_INST= 'SW400/FD5 + Dados200 + 25mic + ATIK420M'                             
+OBSERVER= 'plouis  '                                                            
+BSS_COSM= 'Removed '                                                            
+BSS_TELL= 'None    '                                                            
+BSS_NORM= 'None    '                                                            
+CRPIX1  =                    1                                                  
+CTYPE1  = 'Wavelength'                                                          
+CUNIT1  = 'Angstrom'                                                            
+VERSION = 'specINTI 2.5.7'                                                      
+JD-OBS  = '2460895.41159'                                                       
+----------------------------------------------------
+Output files name:
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_gamcas_20250807_912.fit
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_gamcas_20250807_912.png
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_gamcas_20250807_912_2D.fit
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_gamcas_20250807_912.yaml
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_gamcas_20250807_912_log.txt
+----------------------------------------------------

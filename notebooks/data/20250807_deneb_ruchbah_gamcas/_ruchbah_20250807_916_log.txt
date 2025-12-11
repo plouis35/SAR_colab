@@ -1,0 +1,51 @@
+----------------------------------------------------
+_ruchbah_20250807_916
+----------------------------------------------------
+Computed mean Y = 610
+Computed tilt angle = 0.092
+Predefined slant angle = 0.000
+Calibration coefficients:
+8.284283590949535e-05, 1.6170728496596147, 4261.832955990726
+O-C: [0. 0. 0.]
+Root Mean Square Error = 0.0000 A
+FWHM = 8.36 pixels
+Dispersion = 1.7772 A/pixel
+Resolution power = 382 @ 5678 A
+----------------------------------------------------
+SIMPLE  = 'T       '                                                            
+BITPIX  =                  -32                                                  
+NAXIS1  =                 3237                                                  
+CRVAL1  =    4261.832955990726                                                  
+CDELT1  =   0.8750154784138431                                                  
+BZERO   =                    0                                                  
+BSCALE  =                    1                                                  
+EXPTIME =                 25.0                                                  
+OBJNAME = 'ruchbah '                                                            
+OBJECT  = 'ruchbah '                                                            
+EXPTIME2= '5 x 5 s '                                                            
+BSS_ITRP=                  382                                                  
+SPE_RPOW=                  382                                                  
+BSS_VHEL=                    0                                                  
+DATE-OBS= '2025-08-07T21:59:39.523'                                             
+GEO_LONG=                -1.63                                                  
+GEO_LAT =                48.12                                                  
+GEO_ELEV=                   55                                                  
+BSS_SITE= 'RENNES  '                                                            
+BSS_INST= 'SW400/FD5 + Dados200 + 25mic + ATIK420M'                             
+OBSERVER= 'plouis  '                                                            
+BSS_COSM= 'Removed '                                                            
+BSS_TELL= 'None    '                                                            
+BSS_NORM= 'None    '                                                            
+CRPIX1  =                    1                                                  
+CTYPE1  = 'Wavelength'                                                          
+CUNIT1  = 'Angstrom'                                                            
+VERSION = 'specINTI 2.5.7'                                                      
+JD-OBS  = '2460895.41643'                                                       
+----------------------------------------------------
+Output files name:
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_ruchbah_20250807_916.fit
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_ruchbah_20250807_916.png
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_ruchbah_20250807_916_2D.fit
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_ruchbah_20250807_916.yaml
+/Users/papa/Documents/ASTRO/CAPTURES/20250807_deneb_ruchbah_gamcas/_ruchbah_20250807_916_log.txt
+----------------------------------------------------
