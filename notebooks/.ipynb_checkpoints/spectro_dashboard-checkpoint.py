@@ -323,6 +323,9 @@ class SpectroDashboard:
         for line in self.spectra_lines: line.remove()
         self.spectra_lines = []
 
+        # lignes verticales
+        for line in self.ax_spec.get_lines(): line.remove()   
+
         # legendes
         if self.ax_spec.get_legend(): self.ax_spec.get_legend().remove()
         
