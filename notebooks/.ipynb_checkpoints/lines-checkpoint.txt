@@ -49,6 +49,5 @@
 8662,Ca II (3)
 8665,H-Paschen (Pa11)
 8750,H-Paschen (Pa10)
-8863,H-Paschen
 9300,H2O (Tell)
 

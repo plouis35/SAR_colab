@@ -1,14 +1,18 @@
-# SAR colab : l'espace colaboratif de la Société d'Astronomie de Rennes [SAR](https://astrorennes.fr)
+# SAR colab : l'espace colaboratif de la [Société d'Astronomie de Rennes](https://astrorennes.fr) <img src="notebooks/LOGO_SAR.png" alt="SAR" width="150" height="130">
 
-<img src="notebooks/LOGO_SAR.png" alt="SAR" width="350" height="260">
-
-## Expérimentation hébergé (rien à installer) :
+## Expérimentation à distance :
 - lancer : [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/plouis35/SAR_colab.git/HEAD)
 - attendre l'ouverture de jupyter (bouton `show` pour visualiser l'avancement)
+- double-cliquer sur le répertoire 'notebooks'
+- double-cliquer sur un notebook pour l'ouvrir
+- executer les cellules (SHIFT-ENTER)
 
 ## Installation en local :
 - installer miniforge3 : `https://github.com/conda-forge/miniforge`
 - récupérer le code :  `git clone https://github.com/plouis35/SAR_colab.git`
 - créer un environnement python  : `$ conda env update --file environment.yml`
 - installer les packages requis :  `$ pip install -r requirements.txt`
-- lancer le serveur jupyter lab (or notebook) : `$cd SAR_colab; $ jupyter lab`
+- lancer le serveur jupyter lab (or notebook) : `$ cd SAR_colab; $ jupyter lab`
+- double-cliquer sur le répertoire 'notebooks'
+- double-cliquer sur un notebook pour l'ouvrir
+- executer les cellules (SHIFT-ENTER)
