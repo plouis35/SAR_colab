@@ -3,7 +3,7 @@
 [Société d'Astronomie de Rennes](https://astrorennes.fr) <img src="notebooks/LOGO_SAR.png" alt="SAR" width="350" height="330">
 
 ## Expérimentation à distance :
-- lancer : [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/plouis35/SAR_colab.git/HEAD)
+- lancer : [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/plouis35/SAR_colab.git?urlpath=readme.md)
 - attendre le lancement de l'onglet jupyter (il y a un bouton `show` pour visualiser l'avancement)
 - double-cliquer sur le répertoire 'notebooks'
 - double-cliquer sur un notebook pour l'ouvrir
