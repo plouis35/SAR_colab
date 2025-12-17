@@ -237,7 +237,7 @@ class SpectroDashboard:
         self._apply_cuts([5, 99.5])
 
         # on affiche qq stats sur l'image chargée
-        print(f"{name} : bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}, avg={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, std={np.std(data):.1f}")
+        print(f"Affichage de l'image {name} : bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}, avg={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, std={np.std(data):.1f}")
 
         self.fig_img.canvas.draw_idle()
     
@@ -270,7 +270,7 @@ class SpectroDashboard:
         # on affiche des stats sur le spectre chargé
         dispersion = np.abs(x[1] - x[0])
         
-        print(f"{label} : {dispersion=:.4f} Å/px")
+        print(f"Affichage du spectre {label} : {dispersion=:.4f} Å/px")
 
         self.fig_spec.canvas.draw_idle()
 
