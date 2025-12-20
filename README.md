@@ -12,8 +12,8 @@
 ## Installation en local :
 - installer miniforge3 : `https://github.com/conda-forge/miniforge`
 - récupérer le code :  `git clone https://github.com/plouis35/SAR_colab.git`
-- installer les packages requis :  `$ pip install -r requirements.txt`
-- lancer le serveur jupyter lab (or notebook) : `$ cd SAR_colab; $ jupyter lab`
+- installer les packages requis :  `$ cd SAR_colab; pip install -r requirements.txt`
+- lancer le serveur jupyter lab (or notebook) : `$ jupyter lab`
 - attendre le lancement de l'onglet jupyter 
 - double-cliquer sur le répertoire 'notebooks'
 - double-cliquer sur un notebook pour l'ouvrir
