@@ -1,4 +1,4 @@
-python_version >= "3.12"
+python_version>=3.12
 numpy>2
 matplotlib
 ipympl
