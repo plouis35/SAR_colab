@@ -1,4 +1,4 @@
-name: mybinder-env
+name: base
 dependencies:
   - python=3.12
   - numpy>2

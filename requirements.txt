@@ -1,7 +1,0 @@
-numpy>2
-matplotlib
-ipympl
-pandas
-astropy>7
-ccdproc
-specutils>2 
