@@ -201,13 +201,13 @@ class SpectroDashboard:
 
     # callbacks
 
-    def load_image(self, data, name="Sans nom", binning=1):
+    def show_image(self, data, name="Sans nom", binning=1, **kwargs):
         """
         Charge l'image
         data : np.array, données de l'image
         name : str, nom de l'image à afficher
         binning : int (défaut 1). Si > 1, réduit l'image affichée pour accélérer le zoom/pan
-        alpha : float, effet de transparence
+        kwargs : parametres supplémetaire (non utilisés pour l'instant)
         """
         # ne pas utiliser les unités définies avec Astropy.u (inconnues de matplotlib)
         if hasattr(data, 'value'): data = data.value
@@ -229,7 +229,7 @@ class SpectroDashboard:
         # Initialisation Affichage
         self.im_obj.set_data(self.display_data)
         
-        # Gestion correcte des coordonnées (Extent) même avec le binning
+        # Gestion des coordonnées (Extent) même avec le binning
         h, w = data.shape
         self.im_obj.set_extent([0, w, 0, h])
         
@@ -241,21 +241,24 @@ class SpectroDashboard:
 
         self.fig_img.canvas.draw_idle()
     
-    def load_spectrum(self, x, y, label=None):
+    def show_spectrum(self, x, y, label=None, **kwargs):
         """
         chargement d'un spectre
         x : np.array, données des abscisses
         y : np.array, données des ordonnées
         label : str, légende 
-        fwhm_neon : int, largeur en px d'une raie du neon (pour calculer R max théorique)
+        kwargs : paramètres suplémentaires pour le plot (optionel)
         """
         # si c'est un CCDData, ne pas prendre les unités définies par Astropy (inconnu de matplotlib)
         if hasattr(x, 'value'): x = x.value
         if hasattr(y, 'value'): y = y.value
         
         if label is None: label = f"Spec {len(self.spectra_lines)+1}"
+
+        plot_init = {'linewidth': 1, 'label': label}
+        plot_kwargs = {**plot_init, **kwargs}
         
-        line, = self.ax_spec.plot(x, y, linewidth=1, label=label)
+        line, = self.ax_spec.plot(x, y, **plot_kwargs)# , linewidth=1, label=label)
         self.spectra_lines.append(line)
         self.ax_spec.relim()
         self.ax_spec.autoscale_view()
