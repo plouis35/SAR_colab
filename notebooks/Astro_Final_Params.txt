@@ -1,0 +1,9 @@
+PARAMETRES EXPORT ASTRO
+-----------------------
+Stretch: 0.07100000000000001
+Black Point Ratio: 0.5000000000000001
+Clarity: 0.5
+Denoise: 0.5
+Stars Sigma: 10.1
+Galaxy Sigma: 1.3
+Anti-Gradient: True

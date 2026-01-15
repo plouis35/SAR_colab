@@ -1,0 +1,6 @@
+LOG SUM - m81-60s-6_SUM_processed.png
+------------------------------
+stretch: 0.014000000000000002
+bp_ratio: 0.91
+clarity: 2.5000000000000004
+denoise: 1.0
