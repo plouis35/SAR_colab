@@ -2,9 +2,11 @@ name: base
 dependencies:
   - python=3.12
   - numpy>2
-  - matplotlib
+  - matplotlib>3
   - ipympl
-  - pandas
+  - ipyfilechooser
+  - pandas>2
   - astropy>7
-  - ccdproc
+  - ccdproc>2
   - specutils>2 
+  - photutils>2
