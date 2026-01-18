@@ -30,7 +30,7 @@ class PhotoDashboard:
         self.log_text = widgets.Label(value="Ready")
         self.log_box = widgets.HBox([self.status_dot, self.log_text], layout={'align_items': 'center', 'margin': '0 0 5px 10px'})
         self.lab.log = lambda m: setattr(self.log_text, 'value', f"{m}")
-        plt.ioff()  # Désactive l'affichage auto
+        #plt.ioff()  # Désactive l'affichage auto
         
         with self.output_plot:
             self.fig, self.ax = plt.subplots(figsize=(9, 7), facecolor='black')
@@ -48,7 +48,7 @@ class PhotoDashboard:
             self.fig_h.canvas.toolbar_visible = False
             display(self.fig_h.canvas)
 
-        plt.ion() # On réactive le mode normal 
+        #plt.ion() # On réactive le mode normal 
         
         self.fc = FileChooser(os.getcwd(), title='<b>Select a directory : </b>', dir_only=True, show_only_dirs=True)
         self.fl = widgets.SelectMultiple(options=[], layout={'height': '120px', 'width': '100%'})
@@ -59,12 +59,12 @@ class PhotoDashboard:
         
         s_sty, s_lay = {'description_width': '100px'}, {'width': '100%'}
         self.sliders = {
-            'Stars σ': widgets.FloatSlider(value=5, min=0.01, max=20, step=0.5, description='Stars σ', style=s_sty, layout=s_lay, continuous_update=False),
+            'Stars σ': widgets.FloatSlider(value=1, min=0.01, max=20, step=0.5, description='Stars σ', style=s_sty, layout=s_lay, continuous_update=False),
             'Galaxy σ': widgets.FloatSlider(value=40, min=0, max=80, step=0.1, description='Galaxy σ', style=s_sty, layout=s_lay, continuous_update=False),
             'Stretch': widgets.FloatSlider(value=0.02, min=0.001, max=0.1, step=0.001, description='Stretch', style=s_sty, layout=s_lay, continuous_update=False),
             'BlackPt': widgets.FloatSlider(value=1.0, min=0, max=2, step=0.01, description='BlackPt', style=s_sty, layout=s_lay, continuous_update=False),
-            'Clarity': widgets.FloatSlider(value=0.0, min=0, max=3, step=0.1, description='Clarity', style=s_sty, layout=s_lay, continuous_update=False),
-            'Denoise': widgets.FloatSlider(value=0.0, min=0, max=4, step=0.1, description='Denoise', style=s_sty, layout=s_lay, continuous_update=False),
+            'Clarity': widgets.FloatSlider(value=0.0, min=0, max=2, step=0.1, description='Clarity', style=s_sty, layout=s_lay, continuous_update=False),
+            'Denoise': widgets.FloatSlider(value=0.0, min=0, max=2, step=0.1, description='Denoise', style=s_sty, layout=s_lay, continuous_update=False),
             'Red': widgets.FloatSlider(value=1.0, min=0.5, max=2.0, step=0.05, description='Red', style=s_sty | {'handle_color': 'red'}, layout=s_lay, continuous_update=False),
             'Green': widgets.FloatSlider(value=1.0, min=0.5, max=2.0, step=0.05, description='Green', style=s_sty | {'handle_color': 'green'}, layout=s_lay, continuous_update=False),
             'Blue': widgets.FloatSlider(value=1.0, min=0.5, max=2.0, step=0.05, description='Blue', style=s_sty | {'handle_color': 'blue'}, layout=s_lay, continuous_update=False),
@@ -81,7 +81,6 @@ class PhotoDashboard:
             is_mask = name in ['Stars σ', 'Galaxy σ']
             s.observe(lambda x, n=name, m=is_mask: self._refresh(m, f"Settings change : {n}"), 'value')
 
-    # --- DECORATEUR DE STATUT ---
     def busy_indicator(func):
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
@@ -199,10 +198,10 @@ class PhotoDashboard:
             self.ax_h.axvline(cutoff, color='red', linestyle='-', linewidth=2, alpha=0.8)
             
         self.ax_h.axis('off')
-        #self.fig_h.canvas.draw_idle()
         self.ax.axis('off')
-        self.fig.canvas.draw()      # Force le redessin immédiat (plot principal)
-        self.fig_h.canvas.draw()    # Force le redessin immédiat (histogramme)
+        #self.fig.canvas.draw()      # Force le redessin immédiat (plot principal)
+        #self.fig_h.canvas.draw()    # Force le redessin immédiat (histogramme)
+        self.fig_h.canvas.draw_idle()
         self.lab.log(f"Ready")
 
     @busy_indicator
