@@ -86,22 +86,22 @@ class PhotoLab:
                     if calib.shape != target_shape:
                         if calib.shape[0] == target_shape[1]: calib = np.rot90(calib)
                         else: continue
+                    self.log(f"Aligning image {i+1}/{len(file_paths)}...")
                     shift = self.get_shift_fft(ref_data, calib)
-                    #shift = get_shift_fft(np.log1p(ref_data), np.log1p(calib))
                     #print(shift)
+                    self.log(f"Stacking image {i+1}/{len(file_paths)}...")
                     aligned = np.stack([ndimage.shift(calib[:,:,c], shift, order=1) for c in range(3)], axis=-1) if calib.ndim == 3 else ndimage.shift(calib, shift, order=1)
                     all_aligned.append(aligned)
-                self.log(f"Aligning image {i+1}/{len(file_paths)}...")
             except: pass
             
         if all_aligned:
-            stacked = np.mean(all_aligned, axis=0)
+            stacked = np.sum(all_aligned, axis=0)
             if stacked.ndim == 3:
-                for c in range(3): stacked[:,:,c] -= np.percentile(stacked[:,:,c], 25)
-            p_high = np.percentile(stacked, 99.9)
+                for c in range(3): stacked[:,:,c] -= np.percentile(stacked[:,:,c], 25) # 25)
+            p_high = np.percentile(stacked, 99.9) #99.9)
             self.calibrated = np.clip(stacked / (p_high + 1e-10), 0, 1)
             if self.calibrated.ndim == 2: self.calibrated = self.calibrated[:,:,None]
-            self.log(f"Load and stacking complete ({len(all_aligned)} images)")
+            self.log(f"Loading and stacking complete ({len(all_aligned)} images)")
 
     # =========================================================================
     # MODULES DE TRAITEMENT D'IMAGE 
