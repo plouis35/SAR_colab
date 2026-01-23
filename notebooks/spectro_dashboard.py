@@ -236,6 +236,10 @@ class SpectroDashboard:
         # Application des cuts initiaux
         self._apply_cuts([5, 99.5])
 
+        # on affiche un label (on les enleve tous d'abord)
+        for txt in self.ax_img.texts: txt.remove()
+        self.ax_img.text(0.02, 0.02, name, fontsize=10, verticalalignment='top', bbox=dict(boxstyle="round", facecolor="white", alpha=0.5))
+        
         # on affiche qq stats sur l'image chargée
         print(f"--> Affichage de l'image {name} : bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}, avg={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, std={np.std(data):.1f}")
 
