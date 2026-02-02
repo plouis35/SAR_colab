@@ -47,8 +47,8 @@ class SpectroDashboard:
                 self.fig_img.patch.set_facecolor('black')
                 self.ax_img.set_facecolor('black')
                 
-#                self.im_obj = self.ax_img.imshow(np.zeros((10,10)), cmap='inferno', origin='lower')
-                self.im_obj = self.ax_img.imshow(plt.imread('./LOGO_SAR.png'), cmap='inferno', origin='upper')
+                self.im_obj = self.ax_img.imshow(np.zeros((10,10)), cmap='inferno', origin='lower')
+                #self.im_obj = self.ax_img.imshow(plt.imread('./LOGO_SAR.png'), cmap='inferno', origin='upper')
                 
                 self.cbar = plt.colorbar(self.im_obj, ax=self.ax_img, location='right', shrink=0.6)
                 plt.show()

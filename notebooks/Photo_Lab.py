@@ -20,95 +20,196 @@ class PhotoLab:
         self.calibrated = None
         self.masks = {}
         self.log = logger_callback if logger_callback else print
-
-    # =========================================================================
-    # MODULES DE CHARGEMENT D'IMAGES 
-    # =========================================================================
-
-    def _load_single_raw(self, path):
-        ext = os.path.splitext(path)[1].lower()
-        if ext in ['.fit', '.fits', '.fts']:
-            with fits.open(path) as h: 
-                return h[0].data.astype(np.float32)
-                
-        return np.array(Image.open(path)).astype(np.float32)
-
-    def _get_shift(self, img1, img2):
-        r = np.mean(ref, axis=2) if ref.ndim == 3 else ref
-        t = np.mean(target, axis=2) if target.ndim == 3 else target
-        prod = fft2(r) * fft2(t).conj()
-        cc = ifft2(prod / (np.abs(prod) + 1e-10))
-        shift = np.unravel_index(np.argmax(np.abs(cc)), r.shape)
-        return [s if s <= r.shape[i]//2 else s - r.shape[i] for i, s in enumerate(shift)]
-
-    def get_shift_fft(self, ref, target):
-        i1 = np.log1p(img1)
-        i2 = np.log1p(img2)
-        # On force la moyenne à 0 et l'écart-type à 1
-        i1 = (i1 - np.mean(i1)) / np.std(i1)
-        i2 = (i2 - np.mean(i2)) / np.std(i2)
-        return self._get_shift_fft(i1, i2)
         
-           
+    def get_shift_fft(self, ref_img, target_img, seuil=99.5):
+        """
+        Calcul du décalage (x, y)
+        """
+        # 1. Conversion et nettoyage
+        img_A = np.nan_to_num(ref_img.astype(float))
+        img_B = np.nan_to_num(target_img.astype(float))
+        
+        # On calcule un seuil des X% pixels les plus brillants sur A et B
+        thresh_A = np.percentile(img_A, seuil)
+        thresh_B = np.percentile(img_B, seuil)
+        
+        # On ne garde que les étoiles (le reste devient 0)
+        clean_A = np.clip(img_A - thresh_A, 0, None)
+        clean_B = np.clip(img_B - thresh_B, 0, None)
+        
+        # 3. FFT sur les images "nettoyées"
+        f0 = np.fft.fft2(clean_A)
+        f1 = np.fft.fft2(clean_B)
+        
+        # Cross-Correlation
+        cross_power = (f0 * f1.conjugate()) / (np.abs(f0) * np.abs(f1) + 1e-10)
+        ir = np.abs(np.fft.ifft2(cross_power))
+        
+        t0, t1 = np.unravel_index(np.argmax(ir), ir.shape)
+        
+        # Gestion des quadrants
+        if t0 > img_A.shape[0] // 2: t0 -= img_A.shape[0]
+        if t1 > img_A.shape[1] // 2: t1 -= img_A.shape[1]
+        
+        return [t0, t1]
+        
+    
+    def _debayer_manual(self, img, pattern='RGGB'):
+        """Dématriçage manuel optimisé (évite OpenCV)."""
+        h, w = img.shape
+        rgb = np.zeros((h, w, 3), dtype=float)
+
+        # 1. Extraction simple selon le pattern RGGB (Standard NINA/ZWO)
+        if pattern == 'RGGB':
+            # R  G
+            # G  B
+            rgb[0::2, 0::2, 0] = img[0::2, 0::2]       # Rouge
+            rgb[1::2, 1::2, 2] = img[1::2, 1::2]       # Bleu
+            rgb[0::2, 1::2, 1] = img[0::2, 1::2]       # Vert 1
+            rgb[1::2, 0::2, 1] = img[1::2, 0::2]       # Vert 2
+        
+        # 2. Interpolation pour boucher les trous (Moyenne des voisins)
+        k = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]]) * 0.25
+        
+        # Rouge & Bleu (Trous remplis par les 4 voisins)
+        r, b = rgb[:,:,0], rgb[:,:,2]
+        r_fill = ndimage.convolve(r, k) * 4
+        b_fill = ndimage.convolve(b, k) * 4
+        rgb[:,:,0] = r + r_fill * (r == 0)
+        rgb[:,:,2] = b + b_fill * (b == 0)
+        
+        # Vert (Structure en quinconce)
+        g = rgb[:,:,1]
+        mask_missing_g = (rgb[:,:,0] > 0) | (rgb[:,:,2] > 0)
+        g_fill = ndimage.convolve(g, k) * 4
+        rgb[:,:,1] = g + (g_fill * mask_missing_g)
+
+        return rgb
+
+    def _smart_load(self, path, is_master=False):
+        """
+        Charge TIFF, PNG ou FITS et renvoie une image normalisée (0-1).
+        Gère le dématriçage automatique pour les FITS couleurs.
+        """
+        ext = os.path.splitext(path)[1].lower()
+        data = None
+
+        # A. Chargement FITS
+        if ext in ['.fits', '.fit']:
+            with fits.open(path) as hdul:
+                raw = hdul[0].data.astype(float)
+                # Normalisation 16 bits -> 0-1
+                if np.max(raw) > 1.0: raw /= 65535.0
+                
+                # FITS est souvent tête en bas par rapport aux PNG
+                raw = np.flipud(raw)
+                
+                # Si c'est une image brute (2D) et pas un master (Dark/Flat), on dématrice
+                if raw.ndim == 2 and not is_master:
+                    # On essaie de lire le pattern ou on suppose RGGB
+                    pattern = hdul[0].header.get('BAYERPAT', 'RGGB').replace("'", "").strip()
+                    if len(pattern) != 4: pattern = 'RGGB'
+                    data = self._debayer_manual(raw, pattern)
+                else:
+                    data = raw
+
+        # B. Chargement Classique (Imageio)
+        else:
+            raw = imageio.imread(path).astype(float)
+            # Normalisation Auto (8bits ou 16bits)
+            limit = 65535.0 if np.max(raw) > 255 else 255.0
+            data = raw / limit
+
+        return data
+        
     def load_files(self, file_paths):
         if not file_paths: return
-            
+        
+        # 1. Masters
         self.dark, self.flat = 0, 1
-
-        # charge les master s'ils existent
-        for f in glob.glob("master*"):
+        base_dir = os.path.dirname(file_paths[0])
+        for f in glob.glob(os.path.join(base_dir, "master*")):
             try:
-                data = self._load_single_raw(f)
-                norm = data / (65535.0 if data.max() > 255 else 255.0)
-                if "dark" in f.lower(): 
-                    self.dark = norm
-                    self.log(f"masterdark loaded")
-                if "flat" in f.lower(): 
-                    self.flat = norm / (np.mean(norm) + 1e-10)
-                    self.log(f"masterflat loaded")
-
+                norm = self._smart_load(f, is_master=True)
+                if "dark" in os.path.basename(f).lower(): self.dark = norm
+                if "flat" in os.path.basename(f).lower(): self.flat = norm / (np.mean(norm)+1e-10)
             except: pass
 
+        # 2. Empilement
         all_aligned = []
-        ref_data, target_shape = None, None
-        for i, p in enumerate(sorted(file_paths)):
+        ref_full = None
+        target_shape = None
+        
+        # On trie pour être sûr que la référence est toujours la même
+        file_paths = sorted(file_paths)
+        
+        for i, p in enumerate(file_paths):
             if "master" in os.path.basename(p).lower(): continue
-                
-            try:
-                raw = self._load_single_raw(p) / (65535.0 if self._load_single_raw(p).max() > 255 else 255.0)
-                self.log(f"Reducing image {i+1}/{len(file_paths)}...")
-                calib = (raw - self.dark) / (self.flat + 1e-6)
-
-                if target_shape is None: 
-                    target_shape, ref_data = calib.shape, calib
-                    all_aligned.append(calib)
-                else:
-                    if calib.shape != target_shape:
-                        if calib.shape[0] == target_shape[1]: calib = np.rot90(calib)
-                        else: continue
-                    self.log(f"Aligning image {i+1}/{len(file_paths)}...")
-                    shift = self.get_shift_fft(ref_data, calib)
-                    #print(shift)
-                    self.log(f"Stacking image {i+1}/{len(file_paths)}...")
-                    aligned = np.stack([ndimage.shift(calib[:,:,c], shift, order=1) for c in range(3)], axis=-1) if calib.ndim == 3 else ndimage.shift(calib, shift, order=1)
-                    all_aligned.append(aligned)
-            except: pass
             
+            try:
+                raw = self._smart_load(p, is_master=False)
+                calib = (raw - self.dark) / (self.flat + 1e-6)
+                
+                # --- PREMIERE IMAGE (REF) ---
+                if ref_full is None:
+                    target_shape = calib.shape
+                    ref_full = calib
+                    all_aligned.append(calib)
+                    self.log(f"Img {i} : is the reference img") 
+                    continue
+                
+                # --- ALIGNEMENT ---
+                if calib.shape != target_shape:
+                    if calib.shape[0] == target_shape[1]: calib = np.rot90(calib)
+                    else: continue
+                
+                self.log(f"Aligning {i+1}/{len(file_paths)}...")
+
+                # Extraction du canal Vert (ou Mono)
+                img_A = ref_full[:,:,1] if ref_full.ndim == 3 else ref_full
+                img_B = calib[:,:,1] if calib.ndim == 3 else calib
+                
+                # Calcul Shift
+                shift = self.get_shift_fft(img_A, img_B)
+                self.log(f"Img {i}: shift detected {shift[0]:.0f}, {shift[0]:.0f}") 
+
+                # Sécurité : Si le shift est délirant (> 200 pixels), on ignore l'image
+                if abs(shift[0]) > 200 or abs(shift[1]) > 200:
+                    self.log(f"Img {i}: rejected (shift too large: {shift[0]:.0f}, {shift[0]:.0f}")
+                    continue
+
+                # --- STACKING DES COULEURS ---
+                if calib.ndim == 3:
+                    aligned = np.stack([ndimage.shift(calib[:,:,c], shift, order=1) for c in range(3)], axis=-1)
+                else:
+                    aligned = ndimage.shift(calib, shift, order=1)
+                    
+                all_aligned.append(aligned)
+                
+            except Exception as e:
+                print(f"Error {p}: {e}")
+        
+        # 3. FINALISATION
         if all_aligned:
+            self.log(f"Stacking all {len(all_aligned)} images...")
             stacked = np.sum(all_aligned, axis=0)
+            
+            # Black Point Auto (Pedestal)
+            bp_pc = 1
             if stacked.ndim == 3:
-                for c in range(3): stacked[:,:,c] -= np.percentile(stacked[:,:,c], 25) # 25)
-            p_high = np.percentile(stacked, 99.9) #99.9)
+                for c in range(3): stacked[:,:,c] -= np.percentile(stacked[:,:,c], bp_pc)
+            else:
+                stacked -= np.percentile(stacked, bp_pc)
+
+            # White Point Auto
+            wp_pc = 99.9
+            p_high = np.percentile(stacked, wp_pc)
             self.calibrated = np.clip(stacked / (p_high + 1e-10), 0, 1)
+            
             if self.calibrated.ndim == 2: self.calibrated = self.calibrated[:,:,None]
-            self.log(f"Loading and stacking complete ({len(all_aligned)} images)")
-
-    # =========================================================================
-    # MODULES DE TRAITEMENT D'IMAGE 
-    # =========================================================================
-
-    # --- 0. GESTION DU GRADIENT ---
-
+            self.log("Ready")
+            
+                        
     def remove_gradient(self, img):
         self.log(f"Removing gradient...")
 
@@ -158,26 +259,26 @@ class PhotoLab:
         limit = np.std(high_freq) * sensitivity
         binary_mask = (high_freq > limit)
         
-        # Dilation (vrai secret pour bien protéger les étoiles)
+        # Dilation
         return ndimage.binary_dilation(binary_mask, iterations=2).astype(float)
 
     def _make_galaxy_mask_v3_morpho(self, gray_img, galaxy_sigma):
-        """Isole la nébuleuse en supprimant d'abord les étoiles (Opening)."""
+        """Isole la nébuleuse en supprimant d'abord les étoiles"""
         if galaxy_sigma <= 0.1: return np.zeros_like(gray_img)
 
         # Suppression des étoiles par morphologie (carré 5x5)
         starless = ndimage.grey_opening(gray_img, size=(5,5))
         smooth_starless = ndimage.gaussian_filter(starless, sigma=4)
         
-        # Seuillage adaptatif (Moyenne + 1.5 Sigma)
+        # Seuillage adaptatif (Moyenne + 0.5 Sigma)
         bg_mean = np.mean(smooth_starless)
         bg_std = np.std(smooth_starless)
-        threshold = bg_mean + (1.5 * bg_std)
+        threshold = bg_mean + (0.5 * bg_std)
         
         return (smooth_starless > threshold).astype(float)
 
     def extract_masks(self, img, stars_sigma=15, galaxy_sigma=20):
-        """Coordonne la création des masques avec la 'Bulle de Protection'."""
+        """Coordonne la création des masques"""
         gray = np.mean(img, axis=2)
         
         # 1. Masque Etoiles
@@ -187,7 +288,7 @@ class PhotoLab:
         # 2. Masque Galaxie
         raw_gal = self._make_galaxy_mask_v3_morpho(gray, galaxy_sigma)
         
-        # 3. Bulle de Protection : On soustrait les étoiles gonflées du masque galaxie
+        # 3. Protection : On soustrait les étoiles gonflées du masque galaxie
         if np.max(raw_gal) > 0:
             star_shield = ndimage.binary_dilation(raw_star, iterations=4).astype(float)
             raw_gal = np.clip(raw_gal - star_shield, 0, 1)
@@ -201,10 +302,8 @@ class PhotoLab:
             'background': np.clip(1.0 - g_mask - s_mask, 0, 1)
         }
 
-    # --- 2. MODULES COSMETIQUES (V2 : clarté & staturation couleurs) ---
-
     def _step_denoise_harmonized(self, img, amount, galaxy_sigma):
-        """Denoise RGB 'Safe'. Pas de HSV (évite le vert). Mixe Fond/Objet."""
+        """Denoise RGB """
         if amount <= 0: return img
         
         # Sigma (y,x,0) pour ne pas mélanger les couleurs
@@ -233,14 +332,13 @@ class PhotoLab:
 
     def _step_dynamic_compression(self, img, bp_strength, galaxy_sigma):
         """
-        Compression Dynamique V2 (pour le Black Point).
-        - Clip préventif (fix crash Clarity).
+        Compression Dynamique (pour le Black Point).
         - Ancrage du noir (soustraction du plancher de bruit).
         - Gamma sélectif sur le fond.
         """
         if self.calibrated is None: return img
         
-        # Sécurité Clarity
+        # Sécurité
         img = np.clip(img, 0, 1)
         
         # Ancrage (Auto-Pedestal)
@@ -296,26 +394,31 @@ class PhotoLab:
         self.log(f"Balancing colors...")
         for i in range(3): img[:,:,i] *= rgb[i]
 
-        # 3. Pipeline de Traitement
         # A. Denoise (Texture propre)
-        self.log(f"Denoise...")
-        img = self._step_denoise_harmonized(img, denoise, galaxy_sigma)
-        
+        if denoise > 0:
+            self.log(f"Denoise...")
+            img = self._step_denoise_harmonized(img, denoise, galaxy_sigma)
+            
         # B. Clarity (Volume & Détails)
-        self.log(f"Clarity...")
-        img = self._step_clarity_multiscale(img, clarity, galaxy_sigma)
-        
+        if clarity > 0:
+            self.log(f"Clarity...")
+            img = self._step_clarity_multiscale(img, clarity, galaxy_sigma)
+            
         # C. Compression (Gestion du fond noir & Contraste)
-        self.log(f"Black point...")
-        img = self._step_dynamic_compression(img, bp_ratio, galaxy_sigma)
-        
+        if bp_ratio != 1.0:
+            self.log(f"Black point...")
+            img = self._step_dynamic_compression(img, bp_ratio, galaxy_sigma)
+            
         # D. Saturation (Couleur finale)
-        self.log(f"Color saturation...")
-        img = self._step_saturation_smart(img, saturation, galaxy_sigma)
+        if saturation > 0:
+            self.log(f"Color saturation...")
+            img = self._step_saturation_smart(img, saturation, galaxy_sigma)
 
         # 4. Stretch Final
-        self.log(f"Stretching...")
+        if stretch > 0.01: 
+            self.log(f"Stretching...")
+            img = np.clip(AsinhStretch(a=stretch)(img), 0, 1)
 
-        return np.clip(AsinhStretch(a=stretch)(img), 0, 1)
+        return img
 
         

@@ -8,7 +8,6 @@ from astropy.stats import sigma_clipped_stats
 from astropy.visualization import AsinhStretch
 from photutils.segmentation import detect_threshold, detect_sources
 from scipy import ndimage
-from scipy.fft import fft2, ifft2
 from PIL import Image
 import ipywidgets as widgets
 from IPython.display import display, clear_output
@@ -37,8 +36,8 @@ class PhotoDashboard:
             plt.subplots_adjust(0, 0, 1, 1)
             self.fig.canvas.header_visible = False
             self.fig.canvas.toolbar_position = 'right'
-            self.fig.canvas.layout.width, self.fig.canvas.layout.height = '100%', '100%'
-            self.fig.canvas.layout.min_height = '500px'
+            #self.fig.canvas.layout.width, self.fig.canvas.layout.height = '99%', '99%'
+            #self.fig.canvas.layout.min_height = '500px'
             display(self.fig.canvas)
 
         with self.output_hist:
@@ -51,24 +50,26 @@ class PhotoDashboard:
         #plt.ion() # On réactive le mode normal 
         
         self.fc = FileChooser(os.getcwd(), title='<b>Select a directory : </b>', dir_only=True, show_only_dirs=True)
-        self.fl = widgets.SelectMultiple(options=[], layout={'height': '120px', 'width': '100%'})
-        self.btn_load = widgets.Button(description="Load", button_style='info', layout={'width':'49%'})
-        self.btn_exp = widgets.Button(description="Export", button_style='success', layout={'width':'49%'})
-        self.btn_mask_toggle = widgets.ToggleButton(value=False, description='Show Masks', button_style='warning', icon='eye', layout={'width':'100%'})
+        self.fl = widgets.SelectMultiple(options=[])#, layout={'height': '120px', 'width': '99%'})
+        self.btn_load = widgets.Button(description="Load", button_style='info')#, layout={'width':'49%'})
+        self.btn_exp = widgets.Button(description="Export", button_style='success')#, layout={'width':'49%'})
+        self.btn_mask_toggle = widgets.ToggleButton(value=False, description='Show Masks', button_style='warning', icon='eye')#, layout={'width':'99%'})
         self.chk_grad = widgets.Checkbox(value=False, description='Gradient removal', indent=False)
         
-        s_sty, s_lay = {'description_width': '100px'}, {'width': '100%'}
+        #s_sty, s_lay = {'description_width': '99'}, {'width': '99%'}
+        s_sty, s_lay = {}, {}
+        
         self.sliders = {
-            'Stars σ': widgets.FloatSlider(value=1, min=0.01, max=20, step=0.5, description='Stars σ', style=s_sty, layout=s_lay, continuous_update=False),
-            'Galaxy σ': widgets.FloatSlider(value=40, min=0, max=80, step=0.1, description='Galaxy σ', style=s_sty, layout=s_lay, continuous_update=False),
-            'Stretch': widgets.FloatSlider(value=0.02, min=0.001, max=0.1, step=0.001, description='Stretch', style=s_sty, layout=s_lay, continuous_update=False),
-            'BlackPt': widgets.FloatSlider(value=1.0, min=0, max=2, step=0.01, description='BlackPt', style=s_sty, layout=s_lay, continuous_update=False),
-            'Clarity': widgets.FloatSlider(value=0.0, min=0, max=2, step=0.1, description='Clarity', style=s_sty, layout=s_lay, continuous_update=False),
-            'Denoise': widgets.FloatSlider(value=0.0, min=0, max=2, step=0.1, description='Denoise', style=s_sty, layout=s_lay, continuous_update=False),
+            'Stars σ': widgets.FloatSlider(value=0.0, min=0.0, max=20, step=0.5, description='Stars σ', style=s_sty, layout=s_lay, continuous_update=False),
+            'Galaxy σ': widgets.FloatSlider(value=0.0, min=0.0, max=80, step=0.1, description='Galaxy σ', style=s_sty, layout=s_lay, continuous_update=False),
+            'Stretch': widgets.FloatSlider(value=0.01, min=0.01, max=0.1, step=0.001, description='Stretch', style=s_sty, layout=s_lay, continuous_update=False),
+            'BlackPt': widgets.FloatSlider(value=1.0, min=0.0, max=2, step=0.01, description='BlackPt', style=s_sty, layout=s_lay, continuous_update=False),
+            'Clarity': widgets.FloatSlider(value=0.0, min=0.0, max=2, step=0.1, description='Clarity', style=s_sty, layout=s_lay, continuous_update=False),
+            'Denoise': widgets.FloatSlider(value=0.0, min=0.0, max=2, step=0.1, description='Denoise', style=s_sty, layout=s_lay, continuous_update=False),
             'Red': widgets.FloatSlider(value=1.0, min=0.5, max=2.0, step=0.05, description='Red', style=s_sty | {'handle_color': 'red'}, layout=s_lay, continuous_update=False),
             'Green': widgets.FloatSlider(value=1.0, min=0.5, max=2.0, step=0.05, description='Green', style=s_sty | {'handle_color': 'green'}, layout=s_lay, continuous_update=False),
             'Blue': widgets.FloatSlider(value=1.0, min=0.5, max=2.0, step=0.05, description='Blue', style=s_sty | {'handle_color': 'blue'}, layout=s_lay, continuous_update=False),
-            'Saturation': widgets.FloatSlider(value=0, min=1.0, max=3.0, step=0.1, description='Saturation',style=s_sty, layout=s_lay, continuous_update=False),
+            'Saturation': widgets.FloatSlider(value=0.0, min=0.0, max=3.0, step=0.1, description='Saturation',style=s_sty, layout=s_lay, continuous_update=False),
         }
 
         self.fc.register_callback(self._update_list)
@@ -97,7 +98,7 @@ class PhotoDashboard:
 
     def _update_list(self, c):
         path = c.selected_path
-        f = sorted(glob.glob(os.path.join(path, "*.png")) + glob.glob(os.path.join(path, "*.tif*")), key=os.path.getmtime, reverse=True)
+        f = sorted(glob.glob(os.path.join(path, "*.png")) + glob.glob(os.path.join(path, "*.tif*")) + glob.glob(os.path.join(path, "*.fit*")), key=os.path.getmtime, reverse=True)
         self.fl.options = [(os.path.basename(x), x) for x in f]
 
     @busy_indicator
@@ -106,7 +107,7 @@ class PhotoDashboard:
         # On force un petit temps mort pour laisser le thread UI passer au rouge
         time.sleep(0.05) 
         self.lab.load_files(self.fl.value)
-        self._refresh(True, "Display image...")
+        self._refresh(True, "Refreshing image...")
 
     @busy_indicator
     def _refresh(self, update_masks=False, log_msg=None):
@@ -124,7 +125,7 @@ class PhotoDashboard:
         self.ax.clear()
 
         if self.btn_mask_toggle.value and self.lab.masks:
-            self.lab.log(f"Render masks...")
+            self.lab.log(f"Rendering masks...")
             m = np.zeros((*self.lab.calibrated.shape[:2], 3))
             
             # 1. Étoiles -> Toujours en Rouge
@@ -133,15 +134,14 @@ class PhotoDashboard:
             # 2. Galaxie -> Vert UNIQUEMENT si le masque est actif (sigma > 0)
             # Si galaxy_sigma est à 0, on ne rajoute pas de vert.
             g_sigma = self.sliders['Galaxy σ'].value
-            if g_sigma > 0.1:
+            if g_sigma > 0:
                 m += self.lab.masks['galaxy'][:,:,None] * [0, 1, 0]
             
             # 3. Fond -> Bleu nuit (on peut aussi le masquer si sigma est à 0)
-            if g_sigma > 0.1:
+            if g_sigma > 0:
                 m += self.lab.masks['background'][:,:,None] * [0, 0, 0.2]
             else:
-                # En mode "Amas", on peut laisser le fond noir ou gris très sombre
-                # pour bien voir les étoiles rouges.
+                # En mode "étoiles/amas", on peut laisser le fond noir ou gris très sombre
                 pass 
             
             self.ax.imshow(m)
@@ -157,8 +157,8 @@ class PhotoDashboard:
                     clarity=self.sliders['Clarity'].value,     
                     denoise=self.sliders['Denoise'].value,     
                     saturation=self.sliders['Saturation'].value,
-                    galaxy_sigma=self.sliders['Galaxy σ'].value,  # On lie le curseur 'Galaxy σ'
-                    stars_sigma=self.sliders['Stars σ'].value,   # On lie le curseur 'Stars σ'
+                    galaxy_sigma=self.sliders['Galaxy σ'].value, 
+                    stars_sigma=self.sliders['Stars σ'].value,  
                     rgb=rgb, 
                     do_grad=self.chk_grad.value
                 )        
@@ -172,7 +172,7 @@ class PhotoDashboard:
         # --- MISE À JOUR DE L'HISTOGRAMME ---
         self.ax_h.clear()
         
-        # On étire les données calibrated pour l'affichage de l'histogramme
+        # On étire les données pour l'affichage de l'histogramme
         # Cela permet de voir la "forme" du signal après stretch
         raw_stretch = AsinhStretch(a=self.sliders['Stretch'].value)(self.lab.calibrated)
         data = raw_stretch.ravel()
@@ -183,6 +183,7 @@ class PhotoDashboard:
         if len(useful) > 0:
             # On définit les bords du graphique pour zoomer sur le signal utile
             h_min, h_max = np.percentile(useful, [0.5, 99.5])
+            
             self.ax_h.hist(useful, bins=100, range=(h_min, h_max), color='cyan', alpha=0.4)
             
             # --- SYNCHRONISATION DU BLACK POINT ---
@@ -202,10 +203,13 @@ class PhotoDashboard:
         #self.fig.canvas.draw()      # Force le redessin immédiat (plot principal)
         #self.fig_h.canvas.draw()    # Force le redessin immédiat (histogramme)
         self.fig_h.canvas.draw_idle()
+        self.fig.canvas.draw_idle()
         self.lab.log(f"Ready")
 
     @busy_indicator
     def _export(self):
+        if not self.fc.selected_path: return
+
         self.lab.log(f"Applying cosmetics...")
         rgb = (self.sliders['Red'].value, self.sliders['Green'].value, self.sliders['Blue'].value)
         
@@ -220,9 +224,8 @@ class PhotoDashboard:
                 rgb=rgb, 
                 do_grad=self.chk_grad.value
             )
-        
+
         p = os.path.join(self.fc.selected_path, f"photo_{int(time.time())}")
-        
         img = (img * 65535).astype(np.uint16)
         
         # Sauvegarde directe en TIFF (sans compression)
@@ -236,25 +239,27 @@ class PhotoDashboard:
         clear_output()
         rgb_box = widgets.VBox([widgets.HTML("<b style='color:white; font-size:11px;'>COLOR BALANCE</b>"), 
                         self.sliders['Red'], self.sliders['Green'], self.sliders['Blue']], 
-                        layout={'border': '1px solid #444', 'padding': '5px', 'margin': '5px 0'})
+                               layout={'border': '1px solid #444', 'padding': '5px', 'margin': '5px 0'})
 
         mask_box = widgets.VBox([widgets.HTML("<b style='color:white; font-size:11px;'>MASKS</b>"), 
                         self.sliders['Stars σ'], self.sliders['Galaxy σ']], 
-                        layout={'border': '1px solid #444', 'padding': '5px', 'margin': '5px 0'})
+                               layout={'border': '1px solid #444', 'padding': '5px', 'margin': '5px 0'})
         
         cosm_box = widgets.VBox([widgets.HTML("<b style='color:white; font-size:11px;'>COSMETICS</b>"), 
                         self.sliders['Stretch'], self.sliders['BlackPt'], 
                         self.sliders['Clarity'], self.sliders['Denoise'], self.sliders['Saturation']],
-                        layout={'border': '1px solid #444', 'padding': '5px', 'margin': '5px 0'})
+                               layout={'border': '1px solid #444', 'padding': '5px', 'margin': '5px 0'})
 
         left = widgets.VBox([
-            self.fc, self.fl, widgets.HBox([self.btn_load, self.btn_exp]), 
+            self.fc, self.fl, 
+            widgets.HBox([self.btn_load, self.btn_exp]), 
             self.btn_mask_toggle, self.chk_grad, 
             widgets.HTML("<b style='color:cyan; font-size:11px;'>Histogram (Red=Cutoff)</b>"), 
-            self.output_hist, rgb_box, mask_box, cosm_box
-        ], layout={'width':'380px', 'min_width':'380px', 'padding':'15px'})
-        right = widgets.VBox([self.log_box, self.output_plot], layout={'width':'100%'})
-        display(widgets.HBox([left, right], layout={'width':'100%', 'background-color':'#000'}))
+            self.output_hist, 
+            rgb_box, mask_box, cosm_box
+        ], layout={'width':'25%'})#, 'padding':'15px'})
+        right = widgets.VBox([self.log_box, self.output_plot], layout={'width':'70%'})
+        display(widgets.HBox([left, right]))#, layout={'width':'99%', 'background-color':'#000'}))
         self.lab.log(f"Ready")
 
         
