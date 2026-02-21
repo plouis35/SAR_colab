@@ -14,13 +14,21 @@ import ipywidgets as widgets
 from IPython.display import display, clear_output
 from ipyfilechooser import FileChooser
 import imageio.v3 as imageio
+import astroalign as aa
 
 class PhotoLab:
     def __init__(self, logger_callback=None):
         self.calibrated = None
         self.masks = {}
         self.log = logger_callback if logger_callback else print
+
+
+    def stars_align(self, ref_img, target_img):           
+        aligned_img, _ = aa.register(target_img, ref_img, fill_value=0)
+        target_img = aligned_img
         
+        return [0, 0]
+    
     def get_shift_fft(self, ref_img, target_img, seuil=99.5):
         """
         Calcul du décalage (x, y)
@@ -155,7 +163,7 @@ class PhotoLab:
                     target_shape = calib.shape
                     ref_full = calib
                     all_aligned.append(calib)
-                    self.log(f"Img {i} : is the reference img") 
+                    self.log(f"Image {i} : is the reference img") 
                     continue
                 
                 # --- ALIGNEMENT ---
@@ -169,13 +177,14 @@ class PhotoLab:
                 img_A = ref_full[:,:,1] if ref_full.ndim == 3 else ref_full
                 img_B = calib[:,:,1] if calib.ndim == 3 else calib
                 
-                # Calcul Shift
+                # Calcul décalage images
+                #shift = self.stars_align(img_A, img_B)
                 shift = self.get_shift_fft(img_A, img_B)
-                self.log(f"Img {i}: shift detected {shift[0]:.0f}, {shift[0]:.0f}") 
+                self.log(f"Image {i}: shift detected {shift[0]:.0f}, {shift[1]:.0f}") 
 
                 # Sécurité : Si le shift est délirant (> 200 pixels), on ignore l'image
                 if abs(shift[0]) > 200 or abs(shift[1]) > 200:
-                    self.log(f"Img {i}: rejected (shift too large: {shift[0]:.0f}, {shift[0]:.0f}")
+                    self.log(f"Image {i}: rejected (shift too large: {shift[0]:.0f}, {shift[1]:.0f}")
                     continue
 
                 # --- STACKING DES COULEURS ---
@@ -217,7 +226,7 @@ class PhotoLab:
             h, w = img.shape[:2]
             out = img.copy()
             
-            # Paramètres de la grille (8x8 zones pour M31)
+            # Paramètres de la grille (8x8 zones)
             grid_size = 8
             step_y, step_x = h // grid_size, w // grid_size
             

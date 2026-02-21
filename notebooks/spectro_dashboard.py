@@ -72,8 +72,7 @@ class SpectroDashboard:
                 self.ax_spec.grid(True, alpha=0.2, linestyle='--', color='white')
                 self.ax_spec.xaxis.set_major_locator(ticker.AutoLocator())
                 self.ax_spec.xaxis.set_minor_locator(ticker.AutoMinorLocator())
-
-                
+              
                 # axes en blanc
                 for spine in self.ax_spec.spines.values():
                     spine.set_color('white')
@@ -92,7 +91,6 @@ class SpectroDashboard:
                 self.secax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
 
                 self.secax.set_visible(False)
-
                 plt.show()
 
         self._build_layout()    # affiche le tout
@@ -343,8 +341,7 @@ class SpectroDashboard:
             self.btn_color.icon = 'toggle-off'
             
         # raies
-        for m in self.lines_markers: 
-            m.remove()
+        for m in self.lines_markers: m.remove()
         self.lines_markers = []
         self.btn_lines.icon = 'toggle-off'
         
