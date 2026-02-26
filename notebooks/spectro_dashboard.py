@@ -1,11 +1,14 @@
+import numpy as np
+import os
+import traceback
+
 import ipywidgets as widgets
 from IPython.display import display
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 import matplotlib.ticker as ticker
 
-import numpy as np
-import os
 
 class SpectroDashboard:
     def __init__(self):
@@ -242,8 +245,8 @@ class SpectroDashboard:
         print(f"--> Affichage de l'image {name} : bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}, avg={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, std={np.std(data):.1f}")
 
         self.fig_img.canvas.draw_idle()
-    
-    def show_spectrum(self, x, y, label=None, **kwargs):
+        
+    def show_spectrum_v0(self, x, y, label=None, **kwargs):
         """
         chargement d'un spectre
         x : np.array, données des abscisses
@@ -279,6 +282,54 @@ class SpectroDashboard:
 
         self.fig_spec.canvas.draw_idle()
 
+    
+    def show_spectrum(self, x, y, label=None, **kwargs):
+        """
+        chargement d'un spectre
+        x : np.array, données des abscisses
+        y : np.array, données des ordonnées
+        label : str, légende 
+        kwargs : paramètres suplémentaires pour le plot (optionel)
+        """
+        # Nettoyage des unités et conversion numpy
+        if hasattr(x, 'value'): x = x.value
+        if hasattr(y, 'value'): y = y.value
+        x = np.asarray(x, dtype=float)
+        y = np.asarray(y, dtype=float)
+        
+        # Sécurité : on retire les points invalides qui cassent l'autoscale
+        mask = np.isfinite(x) & np.isfinite(y)
+        x, y = x[mask], y[mask]
+
+        if label is None: label = f"Spec {len(self.spectra_lines)+1}"
+
+        # On travaille dans le widget de sortie dédié au spectre
+        with self.out_spectrum:
+            # On trace le spectre
+            line, = self.ax_spec.plot(x, y, label=label, linewidth=1, **kwargs)
+            self.spectra_lines.append(line)
+            
+            # On force Matplotlib à oublier les anciennes limites
+            self.ax_spec.relim()
+            
+            # Si un axe secondaire existe, il peut bloquer l'autoscale. 
+            # On force donc les limites manuellement pour être sûr.
+            if len(x) > 0:
+                padding_y = (y.max() - y.min()) * 0.05 if y.max() != y.min() else 1.0
+                self.ax_spec.set_xlim(x.min(), x.max())
+                self.ax_spec.set_ylim(y.min() - padding_y, y.max() + padding_y)
+
+            # Mise à jour de la légende
+            leg = self.ax_spec.legend(fontsize='small', facecolor='black', edgecolor='white')
+            if leg:
+                for text in leg.get_texts(): text.set_color("white")
+
+            # Rafraîchissement forcé du canvas
+            self.fig_spec.canvas.draw_idle() 
+            self.fig_spec.canvas.draw() # On double pour certains backends
+            
+        self.last_x, self.last_y = x, y
+        print(f"--> Spectre '{label}' affiché : {len(x)} pts, X:[{x.min():.1f}:{x.max():.1f}]")
 
     def _apply_cuts(self, range_percent):
         """
@@ -324,33 +375,44 @@ class SpectroDashboard:
         bouton CLEAR : nettoie les spectres, légendes, raies et colorisation
         b : widgets selection info
         """
-        # spectres
-        for line in self.spectra_lines: line.remove()
-        self.spectra_lines = []
+        try:
+            with self.out_spectrum:
+                # 1. Supprimer les spectres
+                for line in self.spectra_lines:
+                    line.remove()
+                self.spectra_lines = []
 
-        # lignes verticales
-        for line in self.ax_spec.get_lines(): line.remove()   
+                # 2. Supprimer les raies et leurs labels (via la liste)
+                for m in self.lines_markers:
+                    m.remove()
+                self.lines_markers = []
 
-        # legendes
-        if self.ax_spec.get_legend(): self.ax_spec.get_legend().remove()
-        
-        # colorisation
-        if self.fill_obj: 
-            self.fill_obj.remove()
-            self.fill_obj = None
-            self.btn_color.icon = 'toggle-off'
+                # 3. SECURITÉ : Supprimer les textes restants sur l'axe
+                # (Évite les labels fantômes des raies)
+                for txt in list(self.ax_spec.texts):
+                    txt.remove()
+
+                # 4. Colorisation
+                if self.fill_obj: 
+                    self.fill_obj.remove()
+                    self.fill_obj = None
+                    self.btn_color.icon = 'toggle-off'
+
+                # 5. Reset interface et Doppler
+                self.btn_lines.icon = 'toggle-off'
+                self.secax.set_visible(False)
+                self.btn_velo.icon = 'toggle-off'
+                
+                # Supprimer la légende
+                if self.ax_spec.get_legend():
+                    self.ax_spec.get_legend().remove()
+
+                # Rafraîchir
+                self.fig_spec.canvas.draw()
+        except Exception as e:
+            print(f"Erreur lors du clear: {e}")
             
-        # raies
-        for m in self.lines_markers: m.remove()
-        self.lines_markers = []
-        self.btn_lines.icon = 'toggle-off'
-        
-        # velocité
-        self.secax.set_visible(False)
-        self.btn_velo.icon = 'toggle-off'
-        
-        self.fig_spec.canvas.draw_idle()
-
+            
     def _on_color_click(self, b):
         """
         bouton COLOR : affiche la couleur de la longeur d'onde sous le spectre
@@ -396,51 +458,48 @@ class SpectroDashboard:
         bouton COLOR : affiche la couleur de la longeur d'onde sous le spectre
         b : widgets selection info (inutilisé)       
         """
-        if self.lines_markers:
-            # --- OFF ---
-            for m in self.lines_markers: m.remove()
-            self.lines_markers = []
-            self.btn_lines.icon = 'toggle-off'
-        else:
-            # --- ON ---
-            lines_data = self._read_lines_file()
+        with self.out_spectrum:
+            if self.lines_markers:
+                # --- ACTION OFF ---
+                for m in self.lines_markers:
+                    try:
+                        m.remove()
+                    except:
+                        pass
+                self.lines_markers = []
+                
+                # On nettoie les textes au cas où
+                for txt in list(self.ax_spec.texts):
+                    txt.remove()
+                    
+                self.btn_lines.icon = 'toggle-off'
+            else:
+                # --- ACTION ON ---
+                lines_data = self._read_lines_file()
+                if not lines_data: return
+                
+                xmin, xmax = self.ax_spec.get_xlim()
+                ymin, ymax = self.ax_spec.get_ylim()
+                y_range = ymax - ymin
+                displayed_count = 0 
+                
+                for wvl, name in lines_data:
+                    if wvl < xmin or wvl > xmax: continue
+                    
+                    # Ligne
+                    line = self.ax_spec.axvline(x=wvl, color='#ff6666', linestyle='--', alpha=0.6, linewidth=0.8)
+                    # Texte
+                    level = 0.95 - (displayed_count % 3) * 0.07 
+                    y_text_pos = ymin + y_range * level
+                    text = self.ax_spec.text(wvl, y_text_pos, f" {name}", color='#ff6666', fontsize=8, rotation=90, verticalalignment='top')
+                    
+                    self.lines_markers.extend([line, text])
+                    displayed_count += 1
+                
+                self.btn_lines.icon = 'toggle-on'
             
-            if not lines_data: 
-                print(f"Aucune raie trouvée dans {self.lines_file}")
-                return
+            self.fig_spec.canvas.draw()
             
-            #  on regarde ce qui est affiché AVANT de tracer
-            xmin, xmax = self.ax_spec.get_xlim()
-            ymin, ymax = self.ax_spec.get_ylim()
-            y_range = ymax - ymin
-            
-            # Compteur pour gérer le zig-zag des textes uniquement sur les raies visibles
-            displayed_count = 0 
-            
-            for wvl, name in lines_data:
-                # on ignore tout ce qui est hors champ
-                if wvl < xmin or wvl > xmax:
-                    continue
-                
-                # Tracé de la ligne
-                line = self.ax_spec.axvline(x=wvl, color='#ff6666', linestyle='--', alpha=0.6, linewidth=0.8)
-                
-                # Calcul hauteur zig-zag (basé sur les raies affichées seulement)
-                level = 0.95 - (displayed_count % 3) * 0.07 
-                y_text_pos = ymin + y_range * level
-                
-                text = self.ax_spec.text(wvl, y_text_pos, f" {name}", color='#ff6666', fontsize=8, rotation=90, verticalalignment='top')
-                
-                self.lines_markers.extend([line, text])
-                displayed_count += 1
-                
-            self.btn_lines.icon = 'toggle-on'
-            
-            # Petit message si aucune raie n'est dans la zone
-            if displayed_count == 0:
-                print(f"Aucune raie du fichier n'est visible dans la zone {xmin:.0f}-{xmax:.0f} A")
-                
-        self.fig_spec.canvas.draw_idle()   
         
     def _on_velocity_click(self, b):
         """
