@@ -242,7 +242,7 @@ class SpectroDashboard:
         self.ax_img.text(0.02, 0.02, name, fontsize=10, verticalalignment='top', bbox=dict(boxstyle="round", facecolor="white", alpha=0.5))
         
         # on affiche qq stats sur l'image chargée
-        print(f"--> Affichage de l'image {name} : bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}, avg={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, std={np.std(data):.1f}")
+        print(f"INFO: affichage de l'image {name} : bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}, avg={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, stddev={np.std(data):.1f}")
 
         self.fig_img.canvas.draw_idle()
         
@@ -278,7 +278,7 @@ class SpectroDashboard:
         # on affiche des stats sur le spectre chargé
         dispersion = np.abs(x[1] - x[0])
         
-        print(f"--> Affichage du spectre {label} : {dispersion=:.4f} Å/px")
+        print(f"INFO: affichage du spectre {label} : {dispersion=:.4f} Å/px")
 
         self.fig_spec.canvas.draw_idle()
 
@@ -329,7 +329,8 @@ class SpectroDashboard:
             self.fig_spec.canvas.draw() # On double pour certains backends
             
         self.last_x, self.last_y = x, y
-        print(f"--> Spectre '{label}' affiché : {len(x)} pts, X:[{x.min():.1f}:{x.max():.1f}]")
+ 
+        print(f"INFO: affichage du spectre '{label}' : {len(x)} pts, X:[{x.min():.1f}:{x.max():.1f}]")
 
     def _apply_cuts(self, range_percent):
         """
@@ -382,17 +383,16 @@ class SpectroDashboard:
                     line.remove()
                 self.spectra_lines = []
 
-                # 2. Supprimer les raies et leurs labels (via la liste)
+                # 2. Supprimer les raies et leurs labels
                 for m in self.lines_markers:
                     m.remove()
                 self.lines_markers = []
 
-                # 3. SECURITÉ : Supprimer les textes restants sur l'axe
-                # (Évite les labels fantômes des raies)
+                # 3. Supprimer les textes sur l'axe
                 for txt in list(self.ax_spec.texts):
                     txt.remove()
 
-                # 4. Colorisation
+                # 4. Supprimer la colorisation
                 if self.fill_obj: 
                     self.fill_obj.remove()
                     self.fill_obj = None
@@ -409,6 +409,7 @@ class SpectroDashboard:
 
                 # Rafraîchir
                 self.fig_spec.canvas.draw()
+                
         except Exception as e:
             print(f"Erreur lors du clear: {e}")
             

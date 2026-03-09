@@ -1,0 +1,15 @@
+# Liste de raies principales (Basse Résolution)
+# Wavelength, Name
+
+4340,H-gamma
+4363,[O III]
+4861,H-beta
+4959,[O III]
+5007,[O III]
+5577,[O I]
+6548,[N II]
+6563,H-alpha
+6582,[N II]
+6717,[S II]
+6731,[S II]
+
