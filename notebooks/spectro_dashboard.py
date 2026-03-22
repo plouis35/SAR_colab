@@ -212,7 +212,7 @@ class SpectroDashboard:
         """
         # ne pas utiliser les unités définies avec Astropy.u (inconnues de matplotlib)
         if hasattr(data, 'value'): data = data.value
-        data = np.array(data, dtype=float)
+        data = np.asarray(data, dtype=float)  # gère PIL Image ET np.array
         
         # on applique un binning si demandé (pour accelerer l'affichage)
         self.original_data = data 
@@ -245,42 +245,6 @@ class SpectroDashboard:
         print(f"INFO: affichage de l'image {name} : bin={binning}, shape={data.shape}, min={np.nanmin(data):.0f}, avg={np.nanmean(data):.1f}, max={np.nanmax(data):.0f}, stddev={np.std(data):.1f}")
 
         self.fig_img.canvas.draw_idle()
-        
-    def show_spectrum_v0(self, x, y, label=None, **kwargs):
-        """
-        chargement d'un spectre
-        x : np.array, données des abscisses
-        y : np.array, données des ordonnées
-        label : str, légende 
-        kwargs : paramètres suplémentaires pour le plot (optionel)
-        """
-        # si c'est un CCDData, ne pas prendre les unités définies par Astropy (inconnu de matplotlib)
-        if hasattr(x, 'value'): x = x.value
-        if hasattr(y, 'value'): y = y.value
-        
-        if label is None: label = f"Spec {len(self.spectra_lines)+1}"
-
-        plot_init = {'linewidth': 1, 'label': label}
-        plot_kwargs = {**plot_init, **kwargs}
-        
-        line, = self.ax_spec.plot(x, y, **plot_kwargs)# , linewidth=1, label=label)
-        self.spectra_lines.append(line)
-        self.ax_spec.relim()
-        self.ax_spec.autoscale_view()
-        
-        # Légendes
-        leg = self.ax_spec.legend(fontsize='small', facecolor='black', edgecolor='white')   #loc='upper right'
-        for text in leg.get_texts(): text.set_color("white")
-
-        # on sauve le dernier spectre chargé (pour ne coloriser que ce dernier)
-        self.last_x, self.last_y = x, y
-
-        # on affiche des stats sur le spectre chargé
-        dispersion = np.abs(x[1] - x[0])
-        
-        print(f"INFO: affichage du spectre {label} : {dispersion=:.4f} Å/px")
-
-        self.fig_spec.canvas.draw_idle()
 
     
     def show_spectrum(self, x, y, label=None, **kwargs):
