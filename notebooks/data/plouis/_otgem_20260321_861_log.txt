@@ -1,0 +1,52 @@
+----------------------------------------------------
+_otgem_20260321_861
+----------------------------------------------------
+Computed mean Y = 2164
+Computed tilt angle = -0.463
+Computed slant angle = -0.050
+Calibration coefficients:
+[-5.358842290361766e-07, 0.06475778731563457, 6458.810250319775]
+O-C: [-0.004  0.006 -0.003  0.001]
+Root Mean Square Error = 0.0040 A
+FWHM = 7.48 pixels
+Dispersion = 0.0625 A/pixel
+Resolution power = 14189 @ 6629 A
+Imposed spectral shift: -0.27 A
+----------------------------------------------------
+SIMPLE  = 'T       '                                                            
+BITPIX  =                  -32                                                  
+NAXIS1  =                10518                                                  
+CRVAL1  =     6460.01538652252                                                  
+CDELT1  =  0.03090092827551416                                                  
+BZERO   =                    0                                                  
+BSCALE  =                    1                                                  
+EXPTIME =               3000.0                                                  
+OBJNAME = 'OT Gem  '                                                            
+OBJECT  = 'OT Gem  '                                                            
+EXPTIME2= '5 x 600 s'                                                           
+BSS_ITRP=                14188                                                  
+SPE_RPOW=                14188                                                  
+BSS_VHEL=                    0                                                  
+DATE-OBS= '2026-03-21T20:40:08.739'                                             
+GEO_LONG=                -1.63                                                  
+GEO_LAT =                48.12                                                  
+GEO_ELEV=                   55                                                  
+BSS_SITE= 'Rennes  '                                                            
+BSS_INST= '80ED_StarEx2400_fente23m_ASI183MM'                                   
+OBSERVER= 'plouis  '                                                            
+BSS_COSM= 'Removed '                                                            
+BSS_TELL= 'None    '                                                            
+BSS_NORM= 'None    '                                                            
+CRPIX1  =                    1                                                  
+CTYPE1  = 'Wavelength'                                                          
+CUNIT1  = 'Angstrom'                                                            
+VERSION = 'specINTI 2.5.9'                                                      
+JD-OBS  = '2461121.36121'                                                       
+----------------------------------------------------
+Output files name:
+//mac/Home/Documents/ASTRO/CAPTURES/20260317_kapDra_CQUma_zetUma_alpLeo\_otgem_20260321_861.fits
+//mac/Home/Documents/ASTRO/CAPTURES/20260317_kapDra_CQUma_zetUma_alpLeo\_otgem_20260321_861.png
+//mac/Home/Documents/ASTRO/CAPTURES/20260317_kapDra_CQUma_zetUma_alpLeo\_otgem_20260321_861_2D.fits
+//mac/Home/Documents/ASTRO/CAPTURES/20260317_kapDra_CQUma_zetUma_alpLeo\_otgem_20260321_861.yaml
+//mac/Home/Documents/ASTRO/CAPTURES/20260317_kapDra_CQUma_zetUma_alpLeo\_otgem_20260321_861_log.txt
+----------------------------------------------------
