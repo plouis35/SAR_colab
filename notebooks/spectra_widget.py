@@ -192,7 +192,7 @@ class SpectraWidget:
             
         self.last_x, self.last_y = x, y
  
-        print(f"INFO: affichage du spectre '{label}' : {len(x)} pts, X:[{x.min():.1f}:{x.max():.1f}]")
+        print(f"INFO: affichage du spectre '{label}' : {len(x)} pts ({x.min():.1f}:{x.max():.1f}), {np.mean(np.diff(x)):.4f} A/pix")
 
 
     def clear_spectra(self):

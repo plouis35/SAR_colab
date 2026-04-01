@@ -1,6 +1,6 @@
-# SAR colab : l'espace sciences colaboratif 
+# SAR colab : l'espace sciences colaboratif de la [Société d'Astronomie de Rennes](https://astrorennes.fr)
 
-[Société d'Astronomie de Rennes](https://astrorennes.fr) <img src="notebooks/images/LOGO_SAR.png" alt="SAR" width="350" height="330">
+<img src="notebooks/images/sar_colab_dump_1.jpg" alt="COLAB" width="590" height="530">
 
 ## Expérimentation à distance :
 - lancer : [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/plouis35/SAR_colab.git/HEAD)
