@@ -28,14 +28,15 @@
 5577,[O I]
 5876,He I (D3)
 5893,Na I (D)
-5940,H2O (Tell)
+#5940,H2O (atm)
 6158,TiO
-6280,O2 (Tell a)
+#6280,O2 (atm)
 6385,CaH
-6515,H2O (Tell)
-6548,[N II]
+#6515,H2O (atm)
+#6548,[N II]
 6563,H-alpha
-6582,[N II]
+#6582,[N II]
+6621.7,Fe II
 6678,He I
 6708,Li I
 6716,[S II]
@@ -43,11 +44,11 @@
 6870,O2 (Tell B)
 7050,TiO
 7109,N IV
-7240,H2O (Tell)
-7600,O2 (Tell A)
+#7240,H2O (atm)
+#7600,O2 (atm)
 7774,O I
 8502,H-Paschen (Pa14)
-8228,H2O (Tell)
+8228,H2O (atm)
 8467,H-Paschen (Pa15)
 8498,Ca II (1)
 8542,Ca II (2)
@@ -55,5 +56,5 @@
 8662,Ca II (3)
 8665,H-Paschen (Pa11)
 8750,H-Paschen (Pa10)
-9300,H2O (Tell)
+#9300,H2O (atm)
 
